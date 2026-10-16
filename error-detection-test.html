@@ -1,0 +1,193 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Error Detection Test (CU-TEP style)</title>
+<style>
+:root{--bg:#faf8f4;--fg:#1f2430;--mut:#6b7280;--card:#fff;--bd:#e3dfd6;--ac:#2f5bd2;--ok:#1b7f4b;--okb:#e3f5ea;--no:#b42318;--nob:#fde8e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171c;--fg:#eceef2;--mut:#9aa1ad;--card:#1e2128;--bd:#343a46;--ac:#7c9cff;--ok:#6fdc9c;--okb:#17301f;--no:#ff8a80;--nob:#3a1d1b;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:640px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:1.35rem;margin:.2em 0}.mut{color:var(--mut);font:14px system-ui,sans-serif}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin:14px 0}
+button{font:inherit;cursor:pointer}
+.lv{display:block;width:100%;text-align:left;margin:10px 0;padding:14px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--fg)}
+.lv:hover{border-color:var(--ac)}.lv b{display:block;font-family:system-ui,sans-serif}
+.bar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.q{font-size:1.1rem;line-height:2.1}
+.seg{border:none;background:none;color:inherit;padding:0 2px;margin:0 1px;border-bottom:2px solid var(--fg);border-radius:0}
+.seg sup{font:600 11px system-ui,sans-serif;color:var(--ac);margin-right:2px}
+.seg:not(:disabled):hover{background:var(--bd)}
+.seg.right{background:var(--okb);border-color:var(--ok)}.seg.wrong{background:var(--nob);border-color:var(--no)}
+.exp{margin-top:14px;padding:12px 14px;border-radius:10px;font:15px/1.55 system-ui,sans-serif}
+.exp.g{background:var(--okb)}.exp.b{background:var(--nob)}
+.pri{margin-top:14px;padding:10px 18px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:600 15px system-ui,sans-serif}
+.tag{display:inline-block;font:600 12px system-ui,sans-serif;padding:2px 8px;border-radius:99px;background:var(--bd)}
+.row{display:flex;justify-content:space-between;align-items:center}
+details.card{padding:12px 16px;margin:8px 0}summary{cursor:pointer;font:600 15px system-ui,sans-serif}details p{margin:.5em 0;font:15px/1.55 system-ui,sans-serif}.no{color:var(--no)}.yes{color:var(--ok)}h2{font:700 1.05rem system-ui,sans-serif;margin:1.6em 0 .3em}
+</style></head><body><main id="app"></main>
+<script>
+// [topic, sentence with {{4 underlined parts}}, answer index 0-3, explanation]
+const D={normal:[
+["Subject-verb agreement","The number of students {{studying}} {{abroad}} {{have}} increased {{significantly}} in recent years.",2,"“The number of…” is singular, so the verb must be “has increased.” (Compare: “A number of students have…” is plural.)"],
+["Prepositions / connectors","{{Despite of}} the heavy rain, the football match {{was played}} as {{scheduled}} {{last Sunday}}.",0,"“Despite” is never followed by “of.” Use “Despite the heavy rain” or “In spite of the heavy rain.”"],
+["Tense / time expressions","She {{has been living}} in Bangkok {{since}} ten years and she {{really}} {{loves}} it.".replace("{{really}} {{loves}}","really {{loves}}"),1,"“Since” needs a starting point (since 2016). For a length of time, use “for ten years.”"],
+["Articles","{{An}} university professor {{from}} Japan {{gave}} {{a}} lecture on climate change.",0,"“University” begins with the sound /j/, a consonant sound, so the article is “A,” not “An.”"],
+["Pronoun case","{{Between}} you and {{I}}, the manager {{is planning}} to {{resign}} soon.",1,"After a preposition (“between”) we need the object pronoun “me.” Correct: “between you and me.”"],
+["Parallelism","She enjoys {{swimming}}, {{to hike}}, and {{riding}} {{bicycles}}.",1,"Items in a series must share a form. “Swimming… hiking… riding” are all gerunds; “to hike” breaks the pattern."],
+["Word form","The company's {{success}} is {{largely}} due to its {{innovate}} {{products}}.",2,"A noun (“products”) is modified by an adjective: “innovative,” not the verb form “innovate.”"],
+["Comparatives","This laptop is {{more cheaper}} {{than}} {{the one}} {{I bought}} last year.",0,"“Cheap” is a one-syllable adjective, so use “cheaper.” “More cheaper” is a double comparative."],
+["Conditionals","If I {{would have}} {{known}} about the traffic, I {{would have left}} {{earlier}}.",0,"Third conditional: if + past perfect (“had known”) + would have + past participle. “Would” cannot appear in the if-clause."],
+["Gerund / infinitive","He {{suggested}} {{to take}} a taxi {{because}} it {{was}} late.",1,"“Suggest” is followed by a gerund (“suggested taking”), not an infinitive."],
+["Quantifiers","{{Much}} of the {{students}} {{were}} absent {{yesterday}}.",0,"“Students” is countable, so use “Many of the students.” “Much” is for uncountable nouns."],
+["Prepositions","She is {{interested}} {{on}} {{learning}} {{Korean}}.",1,"The correct collocation is “interested in.”"],
+["Past simple vs present perfect","The company {{has launched}} its new product {{last month}}, {{and}} sales {{are rising}}.",0,"A finished-time expression (“last month”) requires the past simple: “launched.” The present perfect cannot be used with a specific past time."],
+["Subject-verb agreement","Neither the manager nor the employees {{was}} {{aware}} {{of}} the {{change}}.",0,"With “neither… nor,” the verb agrees with the nearest subject. “Employees” is plural, so use “were.”"],
+["Uncountable nouns","She gave me {{an advice}} {{about}} {{choosing}} a {{career}}.",0,"“Advice” is uncountable, so it cannot take “an.” Use “some advice” or “a piece of advice.”"],
+["Pronoun agreement","The students {{who}} {{forgot}} {{his}} books {{were}} sent home.",2,"The antecedent “students” is plural, so the possessive must be “their.”"],
+["Causative verbs","The teacher {{made}} us {{to}} {{rewrite}} {{the essay}}.",1,"“Make” + object takes the bare infinitive: “made us rewrite.” “To” appears only in the passive (“were made to rewrite”)."],
+["Adjective vs adverb","The soup {{tasted}} {{deliciously}}, {{so}} everyone {{asked}} for more.",1,"After linking verbs such as “taste,” “look,” “feel,” use an adjective: “tasted delicious.”"],
+["Passive voice","The new library {{is}} {{being}} {{build}} {{by}} the city council.",2,"The passive needs a past participle: “is being built.”"],
+["Connectors","{{Although}} he was tired, {{but}} he {{kept}} {{working}}.",1,"“Although” and “but” both link contrast, so only one is allowed. Delete “but.”"],
+["Modal verbs","You {{should}} {{to}} {{see}} a doctor {{if}} the pain continues.",1,"Modals are followed by the bare infinitive: “should see,” not “should to see.”"],
+["Prepositions of time","The meeting is {{scheduled}} {{in}} Monday {{at}} {{9 a.m.}}",1,"Use “on” with days of the week: “on Monday.”"],
+["Relative clauses","The house {{which}} roof {{was}} {{damaged}} {{belongs}} to my uncle.",0,"Possession needs “whose”: “The house whose roof was damaged…”"],
+["Superlatives / plurals","Chiang Mai {{is}} one of the {{most}} beautiful {{city}} {{in}} Thailand.",2,"“One of the…” is followed by a plural noun: “cities.”"],
+["Pronoun case","My brother and {{me}} {{went}} {{to}} the {{market}}.",0,"Compound subjects take subject pronouns: “My brother and I went.”"],
+["Past simple vs present perfect","I {{have seen}} that movie {{two years ago}}, {{and}} I {{liked}} it.",0,"“Two years ago” is a finished time, so use the past simple: “saw.”"],
+["Word form","{{Her}} {{decide}} to {{leave}} {{surprised}} everyone.",1,"After a possessive we need a noun: “decision,” not the verb “decide.”"],
+["Articles","{{The}} life is {{full}} {{of}} {{surprises}}.",0,"Abstract nouns used in general take no article: “Life is full of surprises.”"],
+["Prepositions","He {{is}} {{good}} {{in}} {{mathematics}}.",2,"The collocation is “good at.”"],
+["Quantifiers","{{Few}} water {{remains}} {{in}} the tank {{today}}.",0,"“Water” is uncountable, so use “Little water.”"],
+["Comparatives","She is {{as}} {{taller}} {{as}} her {{brother}}.",1,"The as…as pattern uses the base adjective: “as tall as.”"],
+["Gerund after preposition","I {{look forward}} {{to meet}} you {{next}} {{week}}.",1,"In “look forward to,” “to” is a preposition, so use a gerund: “to meeting.”"],
+["Subject-verb agreement","The {{books}} on the shelf {{is}} {{very}} {{old}}.",1,"The subject is plural (“books”); “on the shelf” doesn't change that. Use “are.”"],
+["Past tenses","While I {{was walking}} home, I {{have met}} {{an old}} {{friend}}.",1,"A completed event in a past story needs the past simple: “met.”"],
+["Articles","He is {{a honest}} man {{who}} {{always}} {{tells}} the truth.",0,"“Honest” starts with a silent h, so it begins with a vowel sound: “an honest man.”"],
+["Prepositions","We {{depend}} {{from}} {{our}} parents {{for}} money.",1,"The collocation is “depend on.”"],
+["Pronouns (its / it's)","The dog wagged {{it's}} {{tail}} {{when}} {{it saw}} me.",0,"“It's” means “it is.” The possessive is “its.”"],
+["Adjective vs adverb","She spoke {{very}} {{confident}} {{during}} {{the interview}}.",1,"The verb “spoke” needs an adverb: “confidently.”"],
+["Parallelism","He likes {{to read}}, {{writing}}, and {{playing}} {{chess}}.",0,"Keep the list parallel: “reading, writing, and playing.”"],
+["Conditionals","If it {{rains}} tomorrow, we {{would}} {{cancel}} the {{picnic}}.",1,"Type 1 (real future): if + present, will + verb. Use “will cancel.”"],
+["Uncountable nouns","The {{furniture}} in the room {{were}} {{very}} {{old}}.",1,"“Furniture” is uncountable, so use a singular verb: “was.”"],
+["Gerund / infinitive","She {{enjoys}} {{to swim}} {{every}} {{morning}}.",1,"“Enjoy” is followed by a gerund: “enjoys swimming.”"],
+["Singular school subjects","Mathematics {{are}} {{my}} {{favorite}} {{subject}}.",0,"Names of academic fields are singular: “Mathematics is.”"],
+["Tenses & time expressions","I {{am waiting}} {{for you}} {{since}} {{two hours}}.",2,"For an action that started in the past and continues now, use the present perfect continuous with a duration: “have been waiting… for two hours.”"],
+["Articles","She plays {{a}} {{piano}} {{very}} {{well}}.",0,"Musical instruments take “the” after “play”: “plays the piano.”"],
+["Prepositions & collocations","He is {{married}} {{with}} {{a}} {{doctor}}.",1,"The collocation is “married to.”"],
+["Pronoun case","{{Him}} and his friends {{went}} {{to}} the {{beach}}.",0,"As part of the subject, use the subject pronoun: “He and his friends went.”"],
+["Word form","The report provides {{use}} {{information}} {{about}} the {{market}}.",0,"A noun (“information”) needs an adjective: “useful.”"],
+["Comparatives & superlatives","This exam was {{difficulter}} {{than}} {{the}} {{last one}}.",0,"Long adjectives use “more”: “more difficult.”"],
+["Conditionals","If I {{know}} the answer, I {{would}} {{tell}} {{you}}.",0,"Type 2 conditional: if + past simple, would + verb. Use “knew.”"],
+["Quantifiers","There {{are}} {{too}} {{much}} cars {{on}} the road.",2,"“Cars” is countable, so use “too many.”"],
+["Passive voice","The report {{must submit}} {{by}} {{Friday}} {{noon}}.",0,"The report receives the action, so use the passive: “must be submitted.”"],
+["Subject-verb agreement","The {{price}} of vegetables {{have}} {{gone}} {{up}}.",1,"The subject is “price” (singular), so use “has gone up.”"],
+["Tenses & time expressions","She {{usually}} {{is going}} to school {{by}} {{bus}}.",1,"Habits take the present simple: “usually goes.”"],
+["Articles","I had {{a}} breakfast {{at}} {{eight}} {{o'clock}}.",0,"Meals take no article in general use: “I had breakfast.”"],
+["Prepositions & collocations","She is {{afraid}} {{from}} {{spiders}} {{and}} snakes.",1,"The collocation is “afraid of.”"],
+["Pronouns (whose)","{{Who's}} {{book}} {{is}} {{this}}?",0,"“Who's” means “who is.” Possession needs “whose.”"],
+["Adjective vs adverb","He {{responded}} {{quick}} {{to}} the {{email}}.",1,"The verb “responded” needs an adverb: “quickly.”"],
+["Parallelism","The job {{requires}} {{patience}}, {{creativity}}, and {{to work hard}}.",3,"Use parallel nouns: “patience, creativity, and hard work.”"],
+["Conditionals","If she {{will}} {{come}}, we {{will}} {{start}}.",0,"Don't use “will” in an if-clause. Use the present: “If she comes.”"],
+["Gerund after preposition","I {{am}} {{used}} {{to}} {{wake}} up early.",3,"“Be used to” takes a gerund: “waking.”"],
+["Relative clauses","The man {{which}} {{lives}} {{next door}} {{is}} a pilot.",0,"Use “who” (or “that”) for people, not “which.”"]
+],hard:[
+["Inversion","{{Not only she was}} late for the interview, but she also {{failed}} {{to bring}} {{her résumé}}.",0,"After a negative adverbial like “Not only” at the start, the auxiliary comes before the subject: “Not only was she late…”"],
+["Dangling modifier","{{Having studied}} all night, {{the exam}} {{seemed}} {{easy}} to Mia.",1,"The opening participle must modify the subject that follows. The exam didn't study; fix: “…Mia found the exam easy.”"],
+["Subjunctive","The committee {{insisted}} that the report {{is}} {{submitted}} {{before Friday}}.",1,"After verbs like “insist,” “demand,” “recommend,” the mandative subjunctive uses the base form: “that the report be submitted.”"],
+["Agreement (distant subject)","The findings of the study, which {{were}} {{published}} in a leading journal, {{has}} {{been}} widely cited.",2,"The subject “findings” is plural; the phrase between commas doesn't change it. Use “have been.”"],
+["Relative pronouns","The scientist {{whom}} the committee {{believed}} {{was}} responsible for the error {{resigned}}.",0,"“Whom” is wrong because the pronoun is the subject of “was responsible” (“the committee believed [he] was…”). Use “who.”"],
+["Future perfect","{{By next month}}, she {{will work}} here {{for}} {{ten years}}.",1,"“By + future time” with a duration calls for the future perfect: “will have worked.”"],
+["Collocation / preposition","The new policy has had a {{profound}} {{effect}} {{in}} the way companies {{operate}}.",2,"The standard collocation is “an effect on.”"],
+["Parallelism (complex)","The manager was {{praised}} for his {{creativity}}, {{being punctual}}, and {{his leadership}}.",2,"The list needs parallel nouns: “creativity, punctuality, and leadership.” “Being punctual” breaks the structure."],
+["Faulty comparison","The population of Bangkok {{is}} {{much}} {{larger}} than {{Chiang Mai}}.",3,"A population is compared with a population, not a city. Correct: “than that of Chiang Mai.”"],
+["Uncountable nouns","The {{advice}} the consultant {{gave}} us {{were}} {{invaluable}}.",2,"“Advice” is uncountable and takes a singular verb: “was invaluable.”"],
+["Fixed correlatives","{{Hardly}} had the lecture {{begun}} {{than}} the fire alarm {{rang}}.",2,"“Hardly” pairs with “when” (or “before”), not “than.” “No sooner… than” is the matching pattern with “than.”"],
+["Mixed conditional","{{Had}} the board {{approved}} the plan earlier, the project {{would be}} {{completed}} by last year.",2,"A past unreal condition (“Had… approved”) needs “would have been completed” in the result clause."],
+["Correlatives / agreement","{{Either}} the director {{or}} her {{assistants}} {{is}} responsible for the delay.",3,"With “either… or,” the verb agrees with the nearest subject. “Assistants” is plural, so use “are.”"],
+["Comparison structures","The new model {{is as fast}}, {{if not faster}}, {{than}} the old one {{in}} tests.",0,"“As fast… than” is incomplete. Each comparison needs its own pair: “as fast as, if not faster than.”"],
+["Tense in time clauses","{{Once}} the funding {{will be}} {{approved}}, the team {{will begin}} work.",1,"Time clauses (once, when, after, as soon as) use the present tense for future meaning: “is approved.”"],
+["It is high time","It is {{high time}} the government {{take}} {{action}} {{against}} pollution.",1,"“It is high time” is followed by the past tense for a present or future action: “took.”"],
+["Comparative vs superlative","Of the two proposals, the {{second}} is {{the most}} {{realistic}} {{one}}.",1,"Comparing only two things requires the comparative: “the more realistic.”"],
+["Gerund after preposition","The union {{is}} {{committed}} {{to}} {{improve}} working conditions.",3,"In “be committed to,” “to” is a preposition, so a gerund follows: “improving.”"],
+["Singular school subjects","{{Statistics}} {{are}} one of the {{most}} {{useful}} subjects for researchers.",1,"Names of academic fields (statistics, economics, mathematics) take singular verbs: “is.”"],
+["Redundancy / fixed structure","The reason he resigned {{is because}} he {{felt}} {{undervalued}} {{by}} the board.",0,"“The reason… is because” is redundant. Use “The reason… is that…”"],
+["Reported questions","She {{asked}} me {{where}} {{did I}} {{live}}.",2,"In reported questions, use statement word order: “where I lived.”"],
+["Causative “have”","I {{had}} my car {{repair}} {{by}} a {{mechanic}}.",1,"“Have + object + past participle” expresses a service done for you: “had my car repaired.”"],
+["Negative inversion","{{Little}} did he know that the company {{will}} {{soon}} {{collapse}}.",1,"The clause after “did he know” is in the past, so the future must shift to “would.”"],
+["Inversion with “Only after”","{{Only after}} the results {{were published}}, {{the scientists realized}} {{their}} mistake.",2,"After a fronted “Only after…” phrase, the main clause inverts: “did the scientists realize.”"],
+["Agreement (each of)","{{Each}} of the {{contestants}} {{were}} given {{a number}}.",2,"“Each” is singular, so the verb is “was.”"],
+["So / such","It was {{so}} beautiful {{day}} {{that}} we {{stayed}} outside.",0,"Before an adjective + noun, use “such a”: “such a beautiful day.”"],
+["Who / whom","{{To}} {{who}} {{did}} you {{give}} the key?",1,"The object of the preposition “to” needs “whom”: “To whom did you give…?”"],
+["Past modals","She {{could}} {{have}} {{win}} the race if she {{hadn't}} fallen.",2,"Past modals take the past participle: “could have won.”"],
+["A number of","A {{number}} of {{applicants}} {{has}} {{withdrawn}}.",2,"“A number of” + plural noun takes a plural verb: “have withdrawn.”"],
+["Dangling modifier","{{Unable}} to {{find}} the key, {{the door}} {{was}} broken by Ben.",2,"The phrase “Unable to find the key” must describe the subject. Door can't be unable. Fix: “Ben broke the door.”"],
+["Unless","{{Unless}} you {{don't}} {{hurry}}, you {{will}} miss the bus.",1,"“Unless” already means “if not,” so a second negative is wrong: “Unless you hurry.”"],
+["Prohibit from","The new law {{prohibits}} {{people}} {{to smoke}} {{in public}}.",2,"“Prohibit” takes “from + gerund”: “from smoking.”"],
+["Inversion (no sooner)","No sooner {{had}} the film {{started}} {{when}} the power {{went}} out.",2,"“No sooner” pairs with “than” (“hardly” pairs with “when”)."],
+["Subjunctive","It is {{essential}} that every student {{attends}} {{the}} {{orientation}}.",1,"After “essential that,” use the base form: “that every student attend.”"],
+["Parallelism (infinitives)","The policy aims {{to reduce}} costs, {{improve}} efficiency, and {{increasing}} {{profits}}.",2,"The list is parallel with the base verb after “to”: “to reduce, improve, and increase.”"],
+["Dangling modifier","{{Walking}} along the beach, {{a shell}} {{caught}} {{Kim's}} eye.",1,"The phrase “Walking along the beach” must describe the subject. A shell can't walk. Fix: “Walking along the beach, Kim noticed a shell.”"],
+["Whom after prepositions","The colleague {{with who}} I {{share}} {{an office}} {{is}} on leave.",0,"After a preposition use “whom”: “with whom.”"],
+["Collective nouns","The {{police}} {{has}} {{arrested}} {{three}} suspects.",1,"“The police” is always plural: “have arrested.”"],
+["Fixed structures (prefer)","She {{prefers}} {{walking}} {{than}} {{driving}}.",2,"“Prefer” takes “to”: “prefers walking to driving.”"],
+["Reported speech","He {{told}} that he {{would}} come {{late}} {{tomorrow}}.",0,"“Tell” needs an object (told me); without one, use “said.”"],
+["Past perfect","By the time we {{arrived}}, the film {{has}} {{already}} {{started}}.",1,"An action completed before another past action needs the past perfect: “had already started.”"],
+["Double comparatives","The {{more}} you {{practice}}, {{better}} you {{will become}}.",2,"The structure is “the + comparative, the + comparative”: “the better you will become.”"],
+["Subjunctive","She {{demanded}} that he {{apologizes}} {{to}} {{her}}.",1,"After “demand that,” use the base form: “that he apologize.”"],
+["Parallelism (correlatives)","She is {{both}} {{intelligent}} {{and}} {{a hard worker}}.",3,"“Both…and” joins parallel forms: “both intelligent and hardworking.”"],
+["Relative clauses","The proposal, {{that}} {{was}} {{submitted}} {{late}}, was rejected.",0,"A non-restrictive clause (set off by commas) uses “which,” never “that.”"],
+["Inversion (so…that)","{{So}} loud {{was}} the noise {{what}} nobody {{could}} sleep.",2,"The result clause after “so…” is introduced by “that,” not “what.”"],
+["Agreement (along with)","The {{manager}}, along with her {{assistants}}, {{are}} {{attending}} the conference.",2,"“Along with” does not make the subject plural. The subject is “manager,” so use “is.”"],
+["Tense in clauses","He {{has worked}} here {{since}} he {{has graduated}} {{from}} college.",2,"After “since” + a past event, use the past simple: “since he graduated.”"],
+["Connectors","{{Despite he was tired}}, he {{kept}} {{on}} {{working}}.",0,"“Despite” needs a noun or gerund: “Despite being tired” or “Although he was tired.”"],
+["Fixed expressions","It is {{no}} {{use}} {{to cry}} {{over}} spilt milk.",2,"“It is no use” is followed by a gerund: “crying.”"],
+["Collocation (make / do)","She {{did}} a {{big}} {{mistake}} {{in}} the report.",0,"We “make a mistake,” not “do” one."],
+["Double negatives","He {{couldn't}} {{hardly}} {{believe}} {{the news}}.",1,"“Hardly” is already negative. Use “could hardly believe” or “couldn't believe.”"],
+["Inversion","{{Rarely we see}} such {{talent}} {{in}} {{one person}}.",0,"After negative adverbs (rarely, seldom, hardly), invert: “Rarely do we see.”"],
+["Inverted conditional","{{Were}} he {{to}} {{resigns}}, the company {{would}} struggle.",2,"After “Were he to,” use the bare infinitive: “resign.”"],
+["Agreement","The {{committee}}, {{which}} {{consist}} of ten members, meets weekly.",2,"The relative pronoun refers to the singular “committee,” so the verb is “consists.”"],
+["Faulty comparison","{{Like}} her mother, {{Anna's voice}} {{is}} {{powerful}}.",1,"This compares the mother with a voice. Correct: “Like her mother's, Anna's voice is powerful.”"],
+["Dangling modifier","{{Tired}} {{after}} the long trip, {{the bed}} {{looked}} inviting.",2,"A bed can't be tired. The subject must be a person: “…she found the bed inviting.”"],
+["Parallelism (not only…but also)","He {{not only}} {{wrote}} the report {{but also}} {{he presented}} it.",3,"Keep the two parts parallel: “not only wrote… but also presented it.”"],
+["Word choice (affect / effect)","The new rule {{effected}} {{only}} {{new}} {{employees}}.",0,"The verb meaning “influence” is “affect.” “Effect” as a verb means “bring about.”"],
+["Prepositions & collocations","{{In contrast of}} his brother, Tom {{is}} {{very}} {{shy}}.",0,"The phrase is “in contrast to.”"],
+["Tense in time clauses","I {{will call}} you {{when}} I {{will arrive}} {{home}}.",2,"After “when” in a future time clause, use the present simple: “when I arrive.”"],
+["Agreement (one of the…who)","She is {{one}} of the {{women}} who {{has}} {{won}} the award.",2,"The relative pronoun “who” refers to “women” (plural), so use “have won.”"]
+]};
+const $=s=>document.querySelector(s),app=$("#app");let L,i,score,miss;
+const G=[
+["Subject-verb agreement","The verb agrees with the true subject, not the nearest noun. Ignore phrases between commas. “The number of” = singular; “A number of” = plural. With either/or and neither/nor, agree with the nearest subject. Each, every, either, neither take singular verbs. Fields like statistics, economics are singular.","✗ The number of students have risen. ✓ The number of students has risen."],
+["Tenses & time expressions","Past simple goes with finished times (yesterday, last month, ago). Present perfect links past to now (for, since, already, yet). Use for + duration, since + starting point. Time clauses (when, once, after, as soon as) use present for the future. Future perfect (will have + V3) goes with “by + future time.”","✗ since ten years ✓ for ten years · ✗ Once it will be approved ✓ Once it is approved"],
+["Articles","Use a/an by sound, not spelling (a university, an hour). Uncountable and plural general nouns take no article (life, advice). Use the for specific or unique things.","✗ An university ✓ A university · ✗ The life is short ✓ Life is short"],
+["Prepositions & collocations","Prepositions are fixed with many words: interested in, good at, effect on, committed to, despite (no “of”), in spite of. Time: on + day, at + clock time, in + month/year.","✗ interested on ✓ interested in · ✗ in Monday ✓ on Monday"],
+["Pronouns","After prepositions use object case (between you and me). Pronouns agree with their antecedent in number. Use who for subjects, whom for objects. Use whose for possession.","✗ between you and I ✓ between you and me · ✗ the house which roof ✓ the house whose roof"],
+["Parallelism","Items in a list, or joined by and/or/but/not only…but also, must have the same grammatical form.","✗ creativity, being punctual, leadership ✓ creativity, punctuality, leadership"],
+["Word form","Check the slot: noun, verb, adjective or adverb. Adjectives modify nouns; adverbs modify verbs and adjectives. After linking verbs (taste, look, seem, feel) use adjectives.","✗ innovate products ✓ innovative products · ✗ tasted deliciously ✓ tasted delicious"],
+["Comparatives & superlatives","Short adjectives add -er/-est; long ones use more/most. Never double (more cheaper). Two things = comparative (the second is the more realistic); three or more = superlative. “One of the” + plural noun. Keep as…as complete.","✗ as fast, if not faster than ✓ as fast as, if not faster than"],
+["Faulty comparison","Compare like with like. Use “that of / those of” to avoid comparing a thing with a place or person.","✗ population of Bangkok is larger than Chiang Mai ✓ …than that of Chiang Mai"],
+["Conditionals & subjunctive","Type 2: if + past, would + V. Type 3: if + had V3, would have V3. Never put “would” in the if-clause. Unless already means “if not,” so no extra negative. After insist, demand, recommend, suggest use the base form (that he be…). “It’s high time” + past tense.","✗ If I would have known ✓ If I had known · ✗ Unless you don’t hurry ✓ Unless you hurry"],
+["Gerunds, infinitives & causatives","Enjoy, suggest, avoid, prohibit from + gerund. Look forward to, committed to, object to take gerunds because “to” is a preposition. Make/let + bare infinitive. Have + object + V3 = service.","✗ suggested to take ✓ suggested taking · ✗ had my car repair ✓ had my car repaired"],
+["Quantifiers & uncountable nouns","Many/few/number + countable; much/little/amount + uncountable. Advice, information, furniture, news are uncountable: no “a” or plural.","✗ an advice ✓ a piece of advice · ✗ Much of the students ✓ Many of the students"],
+["Relative clauses","Who (people, subject), whom (people, object), which/that (things), whose (possession). In “the man who I think is…,” who is the subject of “is,” so not whom.","✗ The scientist whom the committee believed was responsible ✓ who…"],
+["Passive voice","Passive = be + past participle. Check the participle form and the right form of be.","✗ is being build ✓ is being built"],
+["Connectors & redundancy","Do not use two connectors for one link (Although…but). Avoid “reason…because”; use “reason…that.”","✗ Although tired, but he worked ✓ Although tired, he worked"],
+["Modal verbs","Modals take the bare infinitive. Past modals: could/should/must + have + V3.","✗ should to see ✓ should see · ✗ could have win ✓ could have won"],
+["Inversion","After negative or restrictive openers (not only, hardly…when, no sooner…than, little, seldom, only after), put the auxiliary before the subject. Hardly pairs with “when.”","✗ Not only she was late ✓ Not only was she late"],
+["Dangling modifiers","An opening participle phrase must describe the subject of the main clause.","✗ Having studied all night, the exam seemed easy. ✓ …Mia found the exam easy."],
+["Reported speech","Use statement word order and shift tenses back (will → would). No “did” in reported questions.","✗ asked where did I live ✓ asked where I lived"],
+["So / such","So + adjective; such + (a) + adjective + noun.","✗ so beautiful day ✓ such a beautiful day"]
+];
+function guide(){return `<h2>Study guide</h2><p class="mut">Rules for every topic in the questions. Tap to open.</p>`+G.map(g=>`<details class="card"><summary>${g[0]}</summary><p>${g[1]}</p><p class="mut">${g[2].replace(/✗([^✓·]*)/g,'<span class="no">✗$1</span>').replace(/✓([^·]*)/g,'<span class="yes">✓$1</span>')}</p></details>`).join("")}
+function home(){app.innerHTML=`<h1>Error Detection Test</h1><p class="mut">CU-TEP style. Pick the underlined part (A–D) that contains the error. An explanation appears after each answer.</p>
+<button class="lv" onclick="start('normal')"><b>Normal</b><span class="mut">${D.normal.length} questions · standard grammar errors</span></button>
+<button class="lv" onclick="start('hard')"><b>Extremely hard</b><span class="mut">${D.hard.length} questions · inversion, subjunctive, dangling modifiers, faulty comparison</span></button>
+${guide()}`}
+function start(l){L=l;i=0;score=0;miss=[];show()}
+function show(){const Q=D[L];if(i>=Q.length)return end();const[t,s,a]=Q[i];const p=s.split(/\{\{|\}\}/);let h="",k=0;
+p.forEach((x,n)=>{if(n%2){h+=`<button class="seg" data-k="${k}" onclick="pick(${k})"><sup>${"ABCD"[k]}</sup>${x}</button>`;k++}else h+=x});
+app.innerHTML=`<div class="row mut"><span>${L==="hard"?"Extremely hard":"Normal"} · ${i+1}/${Q.length}</span><span>Score ${score}</span></div><div class="bar"><i style="width:${i/Q.length*100}%"></i></div>
+<div class="card"><span class="tag">${t}</span><p class="q">${h}</p><div id="fb"></div></div>`}
+function pick(c){const[t,s,a,e]=D[L][i];document.querySelectorAll(".seg").forEach(b=>{b.disabled=true;const k=+b.dataset.k;if(k===a)b.classList.add("right");else if(k===c)b.classList.add("wrong")});
+const ok=c===a;if(ok)score++;else miss.push(t);
+$("#fb").innerHTML=`<div class="exp ${ok?"g":"b"}"><b>${ok?"Correct!":"Not quite."}</b> The error is in <b>(${"ABCD"[a]})</b>. ${e}</div><button class="pri" onclick="i++;show()">${i+1<D[L].length?"Next question →":"See results"}</button>`}
+function end(){const n=D[L].length,u=[...new Set(miss)];app.innerHTML=`<h1>Results</h1><div class="card"><p style="font-size:2rem;margin:0">${score} / ${n}</p><p class="mut">${Math.round(score/n*100)}% correct</p>${u.length?`<p><b>Review these topics:</b><br>${u.join(" · ")}</p>`:"<p>Perfect score!</p>"}</div><button class="pri" onclick="start(L)">Retry</button> <button class="pri" style="background:var(--mut)" onclick="home()">Change level</button>`}
+home();
+</script></body></html>
